@@ -1,0 +1,10 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: chat-app
+        image: ghcr.io/твій-username/chat-app:latest
+        command: ["gunicorn"]
+        args: ["--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5000", "app:app"]
+        ports:
+        - containerPort: 5000
