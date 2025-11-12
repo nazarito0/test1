@@ -1,9 +1,25 @@
-version: '3.8'
+version: '3.9'  # найновіша стабільна у 2025
+
 services:
   chat-app:
     build: .
     ports:
       - "5000:5000"
-    volumes:
-      - .:/app
-    command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 app:app
+    # Обмежуємо ресурси для безпеки та стабільності
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    # У продакшні НЕ використовуємо volumes, бо код уже в образі
+    # volumes:
+    #   - .:/app
+    # У distroless образі CMD уже є, тому command не потрібен
+    # command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 app:app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
